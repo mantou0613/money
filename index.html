@@ -570,17 +570,17 @@ window.addEventListener('DOMContentLoaded', () => {
   renderMeals();
   loadAvailableIngredients();
 
-  const saved = localStorage.getItem('fbConfig');
-  if (saved) {
-    try {
-      const cfg = JSON.parse(saved);
-      initFirebase(cfg);
-    } catch(e) {
-      document.getElementById('config-modal').classList.remove('hidden');
-    }
-  } else {
-    document.getElementById('config-modal').classList.remove('hidden');
-  }
+  // Firebase config 已內建，直接連線
+  const FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyBUVMTbMS3qjW9Vhne5P8IewFoJOPgQsNo",
+    authDomain:        "money-money-6273b.firebaseapp.com",
+    projectId:         "money-money-6273b",
+    storageBucket:     "money-money-6273b.firebasestorage.app",
+    messagingSenderId: "385235006680",
+    appId:             "1:385235006680:web:b0b92dd59259fd9d3853ad"
+  };
+  document.getElementById('config-modal').classList.add('hidden');
+  initFirebase(FIREBASE_CONFIG);
 });
 
 function setDefaultDates() {
