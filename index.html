@@ -29,7 +29,6 @@
     min-height: 100vh;
   }
 
-  /* ── HEADER ── */
   header {
     background: var(--olive);
     color: white;
@@ -58,7 +57,6 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
   .sync-label { font-size: .75rem; opacity: .85; }
 
-  /* ── NAV TABS ── */
   nav {
     display: flex;
     background: var(--paper);
@@ -86,11 +84,9 @@
   }
   nav button:hover:not(.active) { color: var(--olive-light); }
 
-  /* ── PAGES ── */
   .page { display: none; padding: 20px 16px; max-width: 680px; margin: 0 auto; }
   .page.active { display: block; }
 
-  /* ── SECTION CARD ── */
   .card {
     background: var(--paper);
     border: 1px solid var(--border);
@@ -109,7 +105,6 @@
   }
   .card-title span { font-size: 1.1rem; }
 
-  /* ── FORM ELEMENTS ── */
   label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 12px; }
   input[type=text], input[type=number], input[type=date], select, textarea {
     width: 100%;
@@ -128,7 +123,6 @@
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-  /* ── BUTTONS ── */
   .btn {
     padding: 10px 20px;
     border: none;
@@ -164,16 +158,90 @@
   .chip[data-p="B"].selected { background: #c0432a; border-color: #c0432a; }
   .chip[data-p="C"].selected { background: #d4832a; border-color: #d4832a; }
 
+  /* ── STORE CHIPS ── */
+  .store-chips-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    align-items: center;
+  }
+  .store-chip {
+    padding: 7px 14px;
+    border-radius: 30px;
+    border: 2px solid var(--border);
+    background: var(--cream);
+    font-size: .83rem;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .store-chip.selected { border-color: var(--olive); background: var(--olive); color: white; }
+  .store-chip .del-store {
+    font-size: .7rem;
+    opacity: .6;
+    margin-left: 2px;
+    line-height: 1;
+  }
+  .store-chip.selected .del-store { opacity: .8; }
+  .add-store-inline {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .add-store-inline input {
+    width: 110px;
+    padding: 6px 10px;
+    border: 1.5px dashed var(--border);
+    border-radius: 30px;
+    font-size: .82rem;
+    background: var(--cream);
+  }
+  .add-store-inline button {
+    padding: 6px 10px;
+    border-radius: 30px;
+    border: none;
+    background: var(--olive-light);
+    color: white;
+    font-size: .8rem;
+    cursor: pointer;
+  }
+
+  /* ── CATEGORY ROW ── */
+  .cat-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .cat-row select { flex: 1; margin-top: 0; }
+  .cat-row button {
+    padding: 10px 12px;
+    border: 1.5px dashed var(--border);
+    border-radius: 7px;
+    background: var(--cream);
+    color: var(--muted);
+    font-size: .82rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .cat-row button:hover { border-color: var(--olive-light); color: var(--olive); }
+
   /* ── FRACTION PICKER ── */
   .fraction-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
   .frac-chip {
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 5px;
     border: 1.5px solid var(--border);
     background: var(--cream);
-    font-size: .8rem;
+    font-size: .82rem;
     cursor: pointer;
     transition: all .15s;
+    font-weight: 500;
   }
   .frac-chip.selected { background: var(--amber); border-color: var(--amber); color: white; }
 
@@ -283,11 +351,55 @@
     font-size: .8rem;
   }
 
-  /* ── EMPTY STATE ── */
+  /* ── ADD CATEGORY MODAL ── */
+  #cat-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #cat-modal.hidden { display: none; }
+  .cat-modal-box {
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 22px 20px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,.2);
+  }
+  .cat-modal-box h3 {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--olive);
+    margin-bottom: 14px;
+    font-size: 1rem;
+  }
+  .cat-tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .cat-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--tag-bg);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: .8rem;
+    color: var(--ink);
+  }
+  .cat-tag button {
+    border: none;
+    background: none;
+    color: var(--warm-red);
+    cursor: pointer;
+    font-size: .8rem;
+    padding: 0;
+    line-height: 1;
+  }
+
   .empty { text-align: center; padding: 36px 0; color: var(--muted); font-size: .9rem; }
   .empty .icon { font-size: 2.4rem; margin-bottom: 10px; }
 
-  /* ── TOAST ── */
   #toast {
     position: fixed;
     bottom: 24px;
@@ -305,7 +417,6 @@
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 480px) {
     .row-2, .row-3 { grid-template-columns: 1fr; }
     .summary-grid { grid-template-columns: 1fr; }
@@ -332,6 +443,19 @@
   </div>
 </div>
 
+<!-- Add Category Modal -->
+<div id="cat-modal" class="hidden">
+  <div class="cat-modal-box">
+    <h3>📂 管理類別</h3>
+    <div class="cat-tag-list" id="cat-tag-list"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="new-cat-input" placeholder="新類別名稱" style="flex:1;margin-top:0">
+      <button class="btn btn-primary btn-sm" onclick="addCategory()">新增</button>
+    </div>
+    <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="closeCatModal()">完成</button>
+  </div>
+</div>
+
 <!-- Header -->
 <header>
   <h1>🥬 家庭菜帳本</h1>
@@ -349,21 +473,19 @@
   <button onclick="showPage('settings')">⚙️ 設定</button>
 </nav>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <!-- ═══════════════════════════════ PAGE: SHOPPING ═══════════════════════════════ -->
 <div class="page active" id="page-shopping">
 
-  <!-- Add Purchase -->
   <div class="card">
     <div class="card-title"><span>🧾</span> 新增購物紀錄</div>
 
     <label>購買地點</label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="store-chips">
-      <div class="chip selected" onclick="selectStore(this)" data-store="全聯">全聯</div>
-      <div class="chip" onclick="selectStore(this)" data-store="菜市場">菜市場</div>
-      <div class="chip" onclick="selectStore(this)" data-store="其他">其他</div>
+    <div class="store-chips-wrap" id="store-chips"></div>
+    <div class="add-store-inline" style="margin-top:8px">
+      <input type="text" id="new-store-input" placeholder="新增地點…">
+      <button onclick="addStore()">＋ 新增</button>
     </div>
 
     <label>日期</label>
@@ -390,16 +512,10 @@
     </div>
     <div style="margin-top:10px">
       <label>類別</label>
-      <select id="item-category">
-        <option>蔬菜</option>
-        <option>肉類</option>
-        <option>海鮮</option>
-        <option>豆製品</option>
-        <option>主食</option>
-        <option>調味料</option>
-        <option>飲料/零食</option>
-        <option>其他</option>
-      </select>
+      <div class="cat-row">
+        <select id="item-category"></select>
+        <button onclick="openCatModal()">✏️ 管理類別</button>
+      </div>
     </div>
     <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addItem()">＋ 加入品項</button>
 
@@ -409,7 +525,6 @@
     </div>
   </div>
 
-  <!-- Purchase History -->
   <div class="card">
     <div class="card-title"><span>📋</span> 購物紀錄</div>
     <div id="shopping-list">
@@ -467,7 +582,6 @@
     <button class="btn btn-primary btn-full" onclick="saveMeal()">儲存這餐</button>
   </div>
 
-  <!-- Meal History -->
   <div class="card">
     <div class="card-title"><span>🗓️</span> 餐點紀錄</div>
     <div id="meal-list">
@@ -491,7 +605,6 @@
   </div>
   <button class="btn btn-primary" style="margin-bottom:18px" onclick="calcReport()">計算</button>
 
-  <!-- Total Spent -->
   <div class="card">
     <div class="card-title"><span>💰</span> 支出總覽</div>
     <div class="summary-grid" id="report-spent">
@@ -501,13 +614,11 @@
     </div>
   </div>
 
-  <!-- Per-Person Consumed -->
   <div class="card">
     <div class="card-title"><span>🍽️</span> 每人應付餐費</div>
     <div id="report-consumed"></div>
   </div>
 
-  <!-- Balance -->
   <div class="card">
     <div class="card-title"><span>⚖️</span> 誰欠誰多少</div>
     <div id="report-balance">
@@ -515,7 +626,6 @@
     </div>
   </div>
 
-  <!-- Top Ingredients -->
   <div class="card">
     <div class="card-title"><span>🥩</span> 最常用食材 Top 5</div>
     <div id="report-top"></div>
@@ -550,15 +660,18 @@
 
 <!-- ═══════════ SCRIPTS ═══════════ -->
 <script type="module">
-// ── Firebase SDK (動態載入) ──
 let db = null;
 let firebaseMode = false;
 
-// ── Local State ──
+const DEFAULT_STORES     = ['全聯', '菜市場', '其他'];
+const DEFAULT_CATEGORIES = ['蔬菜', '肉類', '海鮮', '豆製品', '主食', '調味料', '飲料/零食', '其他'];
+
 let state = {
-  names: { A: 'A', B: 'B', C: 'C' },
-  shopping: [],  // { id, date, store, payer, items:[{name,price,category}], total }
-  meals: [],     // { id, date, mealType, eaters:[], ingredients:[{shopId,itemName,fraction}], cost, note }
+  names:      { A: 'A', B: 'B', C: 'C' },
+  stores:     [...DEFAULT_STORES],
+  categories: [...DEFAULT_CATEGORIES],
+  shopping:   [],
+  meals:      [],
 };
 
 // ── Init ──
@@ -566,11 +679,12 @@ window.addEventListener('DOMContentLoaded', () => {
   setDefaultDates();
   loadFromLocal();
   applyNames();
+  renderStoreChips();
+  renderCategorySelect();
   renderShopping();
   renderMeals();
   loadAvailableIngredients();
 
-  // Firebase config 已內建，直接連線
   const FIREBASE_CONFIG = {
     apiKey:            "AIzaSyBUVMTbMS3qjW9Vhne5P8IewFoJOPgQsNo",
     authDomain:        "money-money-6273b.firebaseapp.com",
@@ -587,7 +701,6 @@ function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('shop-date').value = today;
   document.getElementById('meal-date').value = today;
-
   const monthAgo = new Date(Date.now() - 30*86400000).toISOString().split('T')[0];
   document.getElementById('r-from').value = monthAgo;
   document.getElementById('r-to').value   = today;
@@ -599,11 +712,9 @@ async function initFirebase(config) {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
     const { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy }
       = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-
     const app = initializeApp(config);
     db = getFirestore(app);
     window._fb = { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, db };
-
     setSyncStatus(true);
     await syncFromFirebase();
   } catch(e) {
@@ -619,10 +730,8 @@ async function syncFromFirebase() {
   try {
     const shopSnap = await getDocs(query(collection(_db, 'shopping'), orderBy('date','desc')));
     state.shopping = shopSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
     const mealSnap = await getDocs(query(collection(_db, 'meals'), orderBy('date','desc')));
     state.meals = mealSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
     saveToLocal();
     renderShopping();
     renderMeals();
@@ -640,13 +749,15 @@ function setSyncStatus(ok) {
   document.getElementById('sync-label').textContent = ok ? 'Firebase 連線中' : '本機模式';
 }
 
-// ── Persist ──
 function saveToLocal() { localStorage.setItem('houseData', JSON.stringify(state)); }
 function loadFromLocal() {
   const s = localStorage.getItem('houseData');
   if (s) {
     const parsed = JSON.parse(s);
     state = { ...state, ...parsed };
+    // Ensure arrays exist for backwards compat
+    if (!state.stores)     state.stores     = [...DEFAULT_STORES];
+    if (!state.categories) state.categories = [...DEFAULT_CATEGORIES];
   }
 }
 
@@ -669,16 +780,100 @@ window.saveNames = function() {
   toast('名稱已更新');
 };
 
-// ──────────────── SHOPPING ────────────────
-let currentItems = [];
-let currentStore = '全聯';
-let currentPayer = 'A';
+// ──────────────── STORES ────────────────
+let currentStore = null;
+
+function renderStoreChips() {
+  const wrap = document.getElementById('store-chips');
+  if (!state.stores.length) state.stores = [...DEFAULT_STORES];
+  // Set default selected store
+  if (!currentStore || !state.stores.includes(currentStore)) {
+    currentStore = state.stores[0];
+  }
+  wrap.innerHTML = state.stores.map(s => `
+    <div class="store-chip ${s === currentStore ? 'selected' : ''}"
+         onclick="selectStore(this)" data-store="${s}">
+      ${s}
+      <span class="del-store" onclick="deleteStore(event, '${s}')">✕</span>
+    </div>`).join('');
+}
 
 window.selectStore = function(el) {
-  document.querySelectorAll('#store-chips .chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
   currentStore = el.dataset.store;
+  renderStoreChips();
 };
+
+window.deleteStore = function(event, name) {
+  event.stopPropagation();
+  if (state.stores.length <= 1) { toast('至少保留一個地點'); return; }
+  state.stores = state.stores.filter(s => s !== name);
+  if (currentStore === name) currentStore = state.stores[0];
+  saveToLocal();
+  renderStoreChips();
+};
+
+window.addStore = function() {
+  const input = document.getElementById('new-store-input');
+  const name  = input.value.trim();
+  if (!name) { toast('請輸入地點名稱'); return; }
+  if (state.stores.includes(name)) { toast('已有此地點'); return; }
+  state.stores.push(name);
+  currentStore = name;
+  saveToLocal();
+  renderStoreChips();
+  input.value = '';
+  toast(`已新增「${name}」`);
+};
+
+// ──────────────── CATEGORIES ────────────────
+function renderCategorySelect() {
+  const sel = document.getElementById('item-category');
+  const cur = sel.value;
+  sel.innerHTML = state.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (state.categories.includes(cur)) sel.value = cur;
+}
+
+function renderCatModal() {
+  const list = document.getElementById('cat-tag-list');
+  list.innerHTML = state.categories.map(c => `
+    <div class="cat-tag">
+      ${c}
+      <button onclick="deleteCategory('${c}')">✕</button>
+    </div>`).join('');
+}
+
+window.openCatModal = function() {
+  renderCatModal();
+  document.getElementById('cat-modal').classList.remove('hidden');
+};
+window.closeCatModal = function() {
+  document.getElementById('cat-modal').classList.add('hidden');
+  renderCategorySelect();
+};
+
+window.addCategory = function() {
+  const input = document.getElementById('new-cat-input');
+  const name  = input.value.trim();
+  if (!name) { toast('請輸入類別名稱'); return; }
+  if (state.categories.includes(name)) { toast('已有此類別'); return; }
+  state.categories.push(name);
+  saveToLocal();
+  renderCatModal();
+  input.value = '';
+  toast(`已新增類別「${name}」`);
+};
+
+window.deleteCategory = function(name) {
+  if (state.categories.length <= 1) { toast('至少保留一個類別'); return; }
+  state.categories = state.categories.filter(c => c !== name);
+  saveToLocal();
+  renderCatModal();
+};
+
+// ──────────────── SHOPPING ────────────────
+let currentItems  = [];
+let currentPayer  = 'A';
+
 window.selectPayer = function(el) {
   document.querySelectorAll('#payer-chips .chip').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
@@ -780,8 +975,8 @@ window.deleteShopping = async function(id) {
 };
 
 // ──────────────── MEAL ────────────────
-let selectedEaters   = ['A'];
-let selectedIngredients = {}; // { "shopId_itemName": fraction }
+let selectedEaters      = ['A'];
+let selectedIngredients = {};
 
 window.toggleEater = function(el) {
   const p = el.dataset.p;
@@ -798,14 +993,12 @@ window.toggleEater = function(el) {
 
 function loadAvailableIngredients() {
   const grid = document.getElementById('ing-grid');
-  // Flatten all available (un-depleted) items from shopping
   const allItems = [];
   state.shopping.forEach(s => {
     s.items.forEach(it => {
       allItems.push({ key: s.id + '_' + it.name, shopId: s.id, name: it.name, price: it.price, date: s.date, category: it.category });
     });
   });
-
   if (!allItems.length) {
     grid.innerHTML = '<div class="empty" style="padding:16px 0">先到購物頁新增食材</div>';
     document.getElementById('ing-fraction-panel').style.display = 'none';
@@ -814,16 +1007,16 @@ function loadAvailableIngredients() {
   grid.innerHTML = allItems.map(it => `
     <div class="ing-chip" id="ing_${it.key}" data-key="${it.key}" data-price="${it.price}" onclick="toggleIngredient(this)">
       ${it.name}
-      <span class="ing-badge" id="badge_${it.key}">1/1</span>
+      <span class="ing-badge" id="badge_${it.key}">100%</span>
     </div>`).join('');
 }
 
+// Changed: 25% / 50% / 75% / 100%
 const FRACTIONS = [
-  { label: '全部', val: 1 },
-  { label: '3/4', val: 0.75 },
-  { label: '1/2', val: 0.5 },
-  { label: '1/3', val: 0.333 },
-  { label: '1/4', val: 0.25 },
+  { label: '25%',  val: 0.25 },
+  { label: '50%',  val: 0.5  },
+  { label: '75%',  val: 0.75 },
+  { label: '100%', val: 1    },
 ];
 
 window.toggleIngredient = function(el) {
@@ -835,7 +1028,7 @@ window.toggleIngredient = function(el) {
   } else {
     el.classList.add('selected');
     selectedIngredients[key] = 1;
-    addFracRow(key, el.textContent.replace(/\s+/g,'').replace(/\d+\/\d+/,''));
+    addFracRow(key, el.textContent.replace(/\s+/g,'').replace(/\d+%/,''));
   }
   calcMealCost();
 };
@@ -871,7 +1064,6 @@ window.setFrac = function(el) {
   document.querySelectorAll(`#${rowId} .frac-chip`).forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
 
-  // Update badge
   const badge = document.getElementById('badge_' + key);
   if (badge) badge.textContent = el.textContent;
 
@@ -880,9 +1072,7 @@ window.setFrac = function(el) {
 
 function calcMealCost() {
   let total = 0;
-  // Find price for each selected ingredient
   Object.entries(selectedIngredients).forEach(([key, frac]) => {
-    // key = shopId_itemName
     const underIdx = key.indexOf('_');
     const shopId   = key.substring(0, underIdx);
     const itemName = key.substring(underIdx + 1);
@@ -895,9 +1085,7 @@ function calcMealCost() {
   const perPerson = selectedEaters.length > 0 ? total / selectedEaters.length : 0;
   document.getElementById('meal-cost').textContent = `$${total.toFixed(1)}`;
   document.getElementById('meal-cost-breakdown').textContent =
-    selectedEaters.length > 1
-    ? `（每人 $${perPerson.toFixed(1)}）`
-    : '';
+    selectedEaters.length > 1 ? `（每人 $${perPerson.toFixed(1)}）` : '';
   return { total, perPerson };
 }
 
@@ -948,7 +1136,7 @@ function renderMeals() {
         <span class="tag">${m.date}</span>
         <div class="meta">
           ${m.eaters.map(p => state.names[p]||p).join('、')} 吃了
-          ${m.ingredients.map(i => i.itemName + (i.fraction<1?` (${fracLabel(i.fraction)})`:'') ).join('、')}
+          ${m.ingredients.map(i => i.itemName + (i.fraction<1 ? ` (${fracLabel(i.fraction)})` : '')).join('、')}
         </div>
         ${m.note ? `<div class="meta">${m.note}</div>` : ''}
       </div>
@@ -960,11 +1148,10 @@ function renderMeals() {
 }
 
 function fracLabel(v) {
-  if (v >= 1)    return '全部';
-  if (v >= 0.74) return '3/4';
-  if (v >= 0.49) return '1/2';
-  if (v >= 0.32) return '1/3';
-  return '1/4';
+  if (v >= 1)    return '100%';
+  if (v >= 0.74) return '75%';
+  if (v >= 0.49) return '50%';
+  return '25%';
 }
 
 window.deleteMeal = async function(id) {
@@ -983,23 +1170,18 @@ window.deleteMeal = async function(id) {
 window.calcReport = function() {
   const from = document.getElementById('r-from').value;
   const to   = document.getElementById('r-to').value;
-
-  // Filter by date
   const shops = state.shopping.filter(s => s.date >= from && s.date <= to);
   const meals = state.meals.filter(m => m.date >= from && m.date <= to);
 
-  // Who paid how much
   const paid = { A:0, B:0, C:0 };
   shops.forEach(s => { paid[s.payer] = (paid[s.payer]||0) + s.total; });
 
-  // Who consumed how much
   const consumed = { A:0, B:0, C:0 };
   meals.forEach(m => {
     const share = m.perPerson || (m.cost / m.eaters.length);
     m.eaters.forEach(p => { consumed[p] = (consumed[p]||0) + share; });
   });
 
-  // Update UI – paid
   const spentEl = document.getElementById('report-spent');
   spentEl.innerHTML = ['A','B','C'].map((p,i) => `
     <div class="summary-box ${i===1?'red':i===2?'amber':''}">
@@ -1007,7 +1189,6 @@ window.calcReport = function() {
       <div class="sval">$${(paid[p]||0).toFixed(0)}</div>
     </div>`).join('');
 
-  // Per-person consumed
   const consEl = document.getElementById('report-consumed');
   consEl.innerHTML = ['A','B','C'].map(p => `
     <div class="balance-row">
@@ -1015,12 +1196,7 @@ window.calcReport = function() {
       <span class="balance-pos">$${(consumed[p]||0).toFixed(1)}</span>
     </div>`).join('');
 
-  // Balance: net = paid - consumed
   const net = { A: (paid.A||0)-(consumed.A||0), B: (paid.B||0)-(consumed.B||0), C: (paid.C||0)-(consumed.C||0) };
-  const totalConsumed = consumed.A + consumed.B + consumed.C;
-  const totalPaid     = paid.A + paid.B + paid.C;
-
-  // Simple settle-up algorithm
   const balEl  = document.getElementById('report-balance');
   const settle = settleUp(net);
   if (!settle.length) {
@@ -1033,7 +1209,6 @@ window.calcReport = function() {
       </div>`).join('');
   }
 
-  // Top ingredients
   const ingCount = {};
   meals.forEach(m => m.ingredients.forEach(i => {
     ingCount[i.itemName] = (ingCount[i.itemName]||0) + 1;
@@ -1055,8 +1230,7 @@ function settleUp(net) {
   const txns = [];
   let ci = 0, di = 0;
   while (ci < creditors.length && di < debtors.length) {
-    const c = creditors[ci];
-    const d = debtors[di];
+    const c = creditors[ci]; const d = debtors[di];
     const amount = Math.min(c.v, -d.v);
     if (amount > 0.01) txns.push({ from: d.p, to: c.p, amount });
     c.v -= amount; d.v += amount;
@@ -1102,13 +1276,16 @@ window.clearLocal = function() {
   localStorage.removeItem('houseData');
   state.shopping = [];
   state.meals = [];
+  state.stores = [...DEFAULT_STORES];
+  state.categories = [...DEFAULT_CATEGORIES];
+  renderStoreChips();
+  renderCategorySelect();
   renderShopping();
   renderMeals();
   loadAvailableIngredients();
   toast('本機資料已清除');
 };
 
-// ──────────────── TOAST ────────────────
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
