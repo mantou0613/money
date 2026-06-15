@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭菜帳本</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root {
+    --olive:   #4a5c3a;
+    --olive-light: #6b7f58;
+    --cream:   #f7f3ec;
+    --paper:   #fffef9;
+    --warm-red:#c0432a;
+    --amber:   #d4832a;
+    --ink:     #2c2c28;
+    --muted:   #8a8778;
+    --border:  #ddd8cc;
+    --tag-bg:  #eae6dc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--olive);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  }
+  header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.4rem;
+    letter-spacing: .08em;
+  }
+  .sync-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #7ec87e;
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .sync-label { font-size: .75rem; opacity: .85; }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex;
+    background: var(--paper);
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+  }
+  nav button {
+    flex: 1;
+    min-width: 90px;
+    padding: 14px 8px;
+    border: none;
+    background: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: .85rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .2s, border-bottom .2s;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  nav button.active {
+    color: var(--olive);
+    border-bottom-color: var(--olive);
+    font-weight: 500;
+  }
+  nav button:hover:not(.active) { color: var(--olive-light); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 20px 16px; max-width: 680px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    color: var(--olive);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title span { font-size: 1.1rem; }
+
+  /* ── FORM ELEMENTS ── */
+  label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 12px; }
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: .9rem;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+    transition: border .2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--olive-light); }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: .88rem;
+    font-weight: 500;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--olive); color: white; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-danger  { background: var(--warm-red); color: white; }
+  .btn-ghost   { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+  .btn-sm      { padding: 5px 12px; font-size: .78rem; }
+  .btn-full    { width: 100%; margin-top: 14px; }
+
+  /* ── PEOPLE CHIPS ── */
+  .people-select { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .chip {
+    padding: 7px 16px;
+    border-radius: 30px;
+    border: 2px solid var(--border);
+    background: var(--cream);
+    font-size: .83rem;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .chip.selected { border-color: var(--olive); background: var(--olive); color: white; }
+  .chip[data-p="A"].selected { background: #4a5c3a; border-color: #4a5c3a; }
+  .chip[data-p="B"].selected { background: #c0432a; border-color: #c0432a; }
+  .chip[data-p="C"].selected { background: #d4832a; border-color: #d4832a; }
+
+  /* ── FRACTION PICKER ── */
+  .fraction-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .frac-chip {
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .frac-chip.selected { background: var(--amber); border-color: var(--amber); color: white; }
+
+  /* ── LIST ITEMS ── */
+  .list-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .meta { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+  .list-item .amount { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--olive); white-space: nowrap; }
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: .72rem;
+    margin-right: 4px;
+    color: var(--muted);
+  }
+
+  /* ── INGREDIENT PICKER ── */
+  .ing-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .ing-chip {
+    padding: 7px 13px;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    font-size: .82rem;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .ing-chip.selected { background: #eef3e8; border-color: var(--olive-light); }
+  .ing-chip .ing-badge {
+    font-size: .68rem;
+    background: var(--amber);
+    color: white;
+    border-radius: 3px;
+    padding: 1px 5px;
+    display: none;
+  }
+  .ing-chip.selected .ing-badge { display: inline; }
+
+  /* ── SUMMARY BOXES ── */
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .summary-box {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .summary-box .sname { font-size: .75rem; color: var(--muted); margin-bottom: 4px; }
+  .summary-box .sval  { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; color: var(--olive); }
+  .summary-box.red .sval { color: var(--warm-red); }
+  .summary-box.amber .sval { color: var(--amber); }
+
+  .balance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: .88rem;
+  }
+  .balance-row:last-child { border-bottom: none; }
+  .balance-pos { color: var(--olive); font-weight: 500; }
+  .balance-neg { color: var(--warm-red); font-weight: 500; }
+
+  /* ── FIREBASE CONFIG MODAL ── */
+  #config-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #config-modal.hidden { display: none; }
+  .modal-box {
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 28px 24px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal-box h2 {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--olive);
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+  }
+  .modal-box p { font-size: .82rem; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .modal-box code {
+    background: var(--tag-bg);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: .8rem;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 36px 0; color: var(--muted); font-size: .9rem; }
+  .empty .icon { font-size: 2.4rem; margin-bottom: 10px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(30px);
+    background: var(--ink);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: .85rem;
+    opacity: 0;
+    transition: all .3s;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Firebase Config Modal -->
+<div id="config-modal">
+  <div class="modal-box">
+    <h2>🔥 設定 Firebase</h2>
+    <p>請輸入你的 Firebase 專案設定。可在 Firebase Console → 專案設定 → 你的應用程式 中找到 <code>firebaseConfig</code> 物件。</p>
+    <label>API Key</label>
+    <input id="fb-apiKey" type="text" placeholder="AIzaSy...">
+    <label>Auth Domain</label>
+    <input id="fb-authDomain" type="text" placeholder="your-app.firebaseapp.com">
+    <label>Project ID</label>
+    <input id="fb-projectId" type="text" placeholder="your-app">
+    <label>App ID</label>
+    <input id="fb-appId" type="text" placeholder="1:xxxxx:web:xxxxx">
+    <button class="btn btn-primary btn-full" onclick="saveFirebaseConfig()">連線 Firebase</button>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="useLocalMode()">暫時使用本機模式（不儲存到雲端）</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header>
+  <h1>🥬 家庭菜帳本</h1>
+  <div>
+    <span class="sync-dot" id="sync-dot" style="background:#aaa"></span>
+    <span class="sync-label" id="sync-label">未連線</span>
+  </div>
+</header>
+
+<!-- Nav -->
+<nav>
+  <button class="active" onclick="showPage('shopping')">🛒 購物</button>
+  <button onclick="showPage('meal')">🍳 記餐</button>
+  <button onclick="showPage('report')">📊 帳目</button>
+  <button onclick="showPage('settings')">⚙️ 設定</button>
+</nav>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════ PAGE: SHOPPING ═══════════════════════════════ -->
+<div class="page active" id="page-shopping">
+
+  <!-- Add Purchase -->
+  <div class="card">
+    <div class="card-title"><span>🧾</span> 新增購物紀錄</div>
+
+    <label>購買地點</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="store-chips">
+      <div class="chip selected" onclick="selectStore(this)" data-store="全聯">全聯</div>
+      <div class="chip" onclick="selectStore(this)" data-store="菜市場">菜市場</div>
+      <div class="chip" onclick="selectStore(this)" data-store="其他">其他</div>
+    </div>
+
+    <label>日期</label>
+    <input type="date" id="shop-date">
+
+    <label>誰付錢？</label>
+    <div class="people-select" id="payer-chips">
+      <div class="chip selected" data-p="A" onclick="selectPayer(this)">A（你）</div>
+      <div class="chip" data-p="B" onclick="selectPayer(this)">B</div>
+      <div class="chip" data-p="C" onclick="selectPayer(this)">C</div>
+    </div>
+
+    <div id="items-list" style="margin-top:16px"></div>
+
+    <div class="row-2" style="margin-top:12px">
+      <div>
+        <label>食材名稱</label>
+        <input type="text" id="item-name" placeholder="e.g. 牛肉、節瓜">
+      </div>
+      <div>
+        <label>金額 (元)</label>
+        <input type="number" id="item-price" placeholder="0">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>類別</label>
+      <select id="item-category">
+        <option>蔬菜</option>
+        <option>肉類</option>
+        <option>海鮮</option>
+        <option>豆製品</option>
+        <option>主食</option>
+        <option>調味料</option>
+        <option>飲料/零食</option>
+        <option>其他</option>
+      </select>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addItem()">＋ 加入品項</button>
+
+    <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center">
+      <span style="font-size:.85rem; color:var(--muted)">合計：<strong id="total-display" style="color:var(--olive); font-size:1rem">$0</strong></span>
+      <button class="btn btn-primary" onclick="saveShopping()">儲存購物</button>
+    </div>
+  </div>
+
+  <!-- Purchase History -->
+  <div class="card">
+    <div class="card-title"><span>📋</span> 購物紀錄</div>
+    <div id="shopping-list">
+      <div class="empty"><div class="icon">🛍️</div>還沒有購物紀錄</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE: MEAL ═══════════════════════════════ -->
+<div class="page" id="page-meal">
+
+  <div class="card">
+    <div class="card-title"><span>🍳</span> 記錄一餐</div>
+
+    <div class="row-2">
+      <div>
+        <label>日期</label>
+        <input type="date" id="meal-date">
+      </div>
+      <div>
+        <label>餐別</label>
+        <select id="meal-type">
+          <option>早餐</option>
+          <option>午餐</option>
+          <option selected>晚餐</option>
+          <option>宵夜</option>
+        </select>
+      </div>
+    </div>
+
+    <label>誰吃了這餐？</label>
+    <div class="people-select" id="eater-chips">
+      <div class="chip selected" data-p="A" onclick="toggleEater(this)">A（你）</div>
+      <div class="chip" data-p="B" onclick="toggleEater(this)">B</div>
+      <div class="chip" data-p="C" onclick="toggleEater(this)">C</div>
+    </div>
+
+    <label>使用的食材</label>
+    <div class="ing-grid" id="ing-grid">
+      <div class="empty" style="padding:16px 0">先到購物頁新增食材</div>
+    </div>
+
+    <div id="ing-fraction-panel" style="margin-top:14px; display:none">
+      <div id="frac-items"></div>
+    </div>
+
+    <label>備註</label>
+    <input type="text" id="meal-note" placeholder="e.g. 番茄炒蛋、清炒節瓜">
+
+    <div style="margin-top:14px; padding:12px; background:var(--tag-bg); border-radius:8px; font-size:.85rem">
+      預估餐費：<strong id="meal-cost" style="font-size:1.1rem; color:var(--olive)">$0</strong>
+      <span style="color:var(--muted); margin-left:6px" id="meal-cost-breakdown"></span>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="saveMeal()">儲存這餐</button>
+  </div>
+
+  <!-- Meal History -->
+  <div class="card">
+    <div class="card-title"><span>🗓️</span> 餐點紀錄</div>
+    <div id="meal-list">
+      <div class="empty"><div class="icon">🍽️</div>還沒有餐點紀錄</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE: REPORT ═══════════════════════════════ -->
+<div class="page" id="page-report">
+
+  <div class="row-2" style="margin-bottom:18px">
+    <div>
+      <label>起始日期</label>
+      <input type="date" id="r-from">
+    </div>
+    <div>
+      <label>結束日期</label>
+      <input type="date" id="r-to">
+    </div>
+  </div>
+  <button class="btn btn-primary" style="margin-bottom:18px" onclick="calcReport()">計算</button>
+
+  <!-- Total Spent -->
+  <div class="card">
+    <div class="card-title"><span>💰</span> 支出總覽</div>
+    <div class="summary-grid" id="report-spent">
+      <div class="summary-box"><div class="sname">A 付出</div><div class="sval">$0</div></div>
+      <div class="summary-box red"><div class="sname">B 付出</div><div class="sval">$0</div></div>
+      <div class="summary-box amber"><div class="sname">C 付出</div><div class="sval">$0</div></div>
+    </div>
+  </div>
+
+  <!-- Per-Person Consumed -->
+  <div class="card">
+    <div class="card-title"><span>🍽️</span> 每人應付餐費</div>
+    <div id="report-consumed"></div>
+  </div>
+
+  <!-- Balance -->
+  <div class="card">
+    <div class="card-title"><span>⚖️</span> 誰欠誰多少</div>
+    <div id="report-balance">
+      <div class="empty">先選日期並按「計算」</div>
+    </div>
+  </div>
+
+  <!-- Top Ingredients -->
+  <div class="card">
+    <div class="card-title"><span>🥩</span> 最常用食材 Top 5</div>
+    <div id="report-top"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE: SETTINGS ═══════════════════════════════ -->
+<div class="page" id="page-settings">
+  <div class="card">
+    <div class="card-title"><span>👥</span> 成員名稱</div>
+    <label>A 的名字</label>
+    <input type="text" id="name-A" placeholder="你的名字">
+    <label>B 的名字</label>
+    <input type="text" id="name-B" placeholder="成員 B">
+    <label>C 的名字</label>
+    <input type="text" id="name-C" placeholder="成員 C">
+    <button class="btn btn-primary btn-full" onclick="saveNames()">儲存名稱</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🔥</span> Firebase 設定</div>
+    <p style="font-size:.82rem; color:var(--muted); margin-bottom:12px">重新設定 Firebase 連線</p>
+    <button class="btn btn-ghost" onclick="document.getElementById('config-modal').classList.remove('hidden')">重新設定 Firebase</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🗑️</span> 清除資料</div>
+    <p style="font-size:.82rem; color:var(--muted); margin-bottom:12px">清除所有本機快取（Firebase 資料不受影響）</p>
+    <button class="btn btn-danger btn-sm" onclick="clearLocal()">清除本機資料</button>
+  </div>
+</div>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script type="module">
+// ── Firebase SDK (動態載入) ──
+let db = null;
+let firebaseMode = false;
+
+// ── Local State ──
+let state = {
+  names: { A: 'A', B: 'B', C: 'C' },
+  shopping: [],  // { id, date, store, payer, items:[{name,price,category}], total }
+  meals: [],     // { id, date, mealType, eaters:[], ingredients:[{shopId,itemName,fraction}], cost, note }
+};
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  setDefaultDates();
+  loadFromLocal();
+  applyNames();
+  renderShopping();
+  renderMeals();
+  loadAvailableIngredients();
+
+  const saved = localStorage.getItem('fbConfig');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      initFirebase(cfg);
+    } catch(e) {
+      document.getElementById('config-modal').classList.remove('hidden');
+    }
+  } else {
+    document.getElementById('config-modal').classList.remove('hidden');
+  }
+});
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('shop-date').value = today;
+  document.getElementById('meal-date').value = today;
+
+  const monthAgo = new Date(Date.now() - 30*86400000).toISOString().split('T')[0];
+  document.getElementById('r-from').value = monthAgo;
+  document.getElementById('r-to').value   = today;
+}
+
+// ── Firebase Init ──
+async function initFirebase(config) {
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy }
+      = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    const app = initializeApp(config);
+    db = getFirestore(app);
+    window._fb = { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, db };
+
+    setSyncStatus(true);
+    await syncFromFirebase();
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    setSyncStatus(false);
+    toast('Firebase 連線失敗，使用本機模式');
+  }
+}
+
+async function syncFromFirebase() {
+  if (!db) return;
+  const { collection, getDocs, query, orderBy, db: _db } = window._fb;
+  try {
+    const shopSnap = await getDocs(query(collection(_db, 'shopping'), orderBy('date','desc')));
+    state.shopping = shopSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const mealSnap = await getDocs(query(collection(_db, 'meals'), orderBy('date','desc')));
+    state.meals = mealSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    saveToLocal();
+    renderShopping();
+    renderMeals();
+    loadAvailableIngredients();
+    toast('已從 Firebase 同步資料');
+  } catch(e) {
+    console.error(e);
+    toast('同步失敗，顯示本機資料');
+  }
+}
+
+function setSyncStatus(ok) {
+  firebaseMode = ok;
+  document.getElementById('sync-dot').style.background = ok ? '#7ec87e' : '#aaa';
+  document.getElementById('sync-label').textContent = ok ? 'Firebase 連線中' : '本機模式';
+}
+
+// ── Persist ──
+function saveToLocal() { localStorage.setItem('houseData', JSON.stringify(state)); }
+function loadFromLocal() {
+  const s = localStorage.getItem('houseData');
+  if (s) {
+    const parsed = JSON.parse(s);
+    state = { ...state, ...parsed };
+  }
+}
+
+// ── Names ──
+function applyNames() {
+  document.getElementById('name-A').value = state.names.A;
+  document.getElementById('name-B').value = state.names.B;
+  document.getElementById('name-C').value = state.names.C;
+  document.querySelectorAll('[data-p]').forEach(el => {
+    const p = el.dataset.p;
+    if (state.names[p]) el.textContent = state.names[p];
+  });
+}
+window.saveNames = function() {
+  state.names.A = document.getElementById('name-A').value || 'A';
+  state.names.B = document.getElementById('name-B').value || 'B';
+  state.names.C = document.getElementById('name-C').value || 'C';
+  saveToLocal();
+  applyNames();
+  toast('名稱已更新');
+};
+
+// ──────────────── SHOPPING ────────────────
+let currentItems = [];
+let currentStore = '全聯';
+let currentPayer = 'A';
+
+window.selectStore = function(el) {
+  document.querySelectorAll('#store-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentStore = el.dataset.store;
+};
+window.selectPayer = function(el) {
+  document.querySelectorAll('#payer-chips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentPayer = el.dataset.p;
+};
+
+window.addItem = function() {
+  const name  = document.getElementById('item-name').value.trim();
+  const price = parseFloat(document.getElementById('item-price').value);
+  const cat   = document.getElementById('item-category').value;
+  if (!name || isNaN(price) || price <= 0) { toast('請填寫食材名稱與金額'); return; }
+  currentItems.push({ name, price, category: cat });
+  document.getElementById('item-name').value  = '';
+  document.getElementById('item-price').value = '';
+  renderCurrentItems();
+};
+
+function renderCurrentItems() {
+  const el = document.getElementById('items-list');
+  if (currentItems.length === 0) { el.innerHTML = ''; updateTotal(); return; }
+  el.innerHTML = currentItems.map((it, i) => `
+    <div class="list-item">
+      <div>
+        <strong>${it.name}</strong>
+        <span class="tag">${it.category}</span>
+        <div class="meta">$${it.price}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="removeItem(${i})">✕</button>
+    </div>`).join('');
+  updateTotal();
+}
+
+window.removeItem = function(i) { currentItems.splice(i,1); renderCurrentItems(); };
+
+function updateTotal() {
+  const t = currentItems.reduce((s,it) => s+it.price, 0);
+  document.getElementById('total-display').textContent = `$${t.toFixed(0)}`;
+}
+
+window.saveShopping = async function() {
+  if (currentItems.length === 0) { toast('請先加入品項'); return; }
+  const record = {
+    date:  document.getElementById('shop-date').value,
+    store: currentStore,
+    payer: currentPayer,
+    items: currentItems.slice(),
+    total: currentItems.reduce((s,i) => s+i.price, 0),
+    createdAt: Date.now()
+  };
+  let id = 'local_' + Date.now();
+  if (firebaseMode && db) {
+    const { collection, addDoc, db: _db } = window._fb;
+    try {
+      const ref = await addDoc(collection(_db, 'shopping'), record);
+      id = ref.id;
+    } catch(e) { toast('Firebase 儲存失敗，存入本機'); }
+  }
+  record.id = id;
+  state.shopping.unshift(record);
+  saveToLocal();
+  currentItems = [];
+  renderCurrentItems();
+  renderShopping();
+  loadAvailableIngredients();
+  toast('購物紀錄已儲存 ✓');
+};
+
+function renderShopping() {
+  const el = document.getElementById('shopping-list');
+  if (!state.shopping.length) {
+    el.innerHTML = '<div class="empty"><div class="icon">🛍️</div>還沒有購物紀錄</div>'; return;
+  }
+  el.innerHTML = state.shopping.map(r => `
+    <div class="list-item">
+      <div>
+        <strong>${r.store}</strong>
+        <span class="tag">${r.date}</span>
+        <span class="tag">付款：${state.names[r.payer] || r.payer}</span>
+        <div class="meta">${r.items.map(i => i.name).join('、')}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="amount">$${r.total.toFixed(0)}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="deleteShopping('${r.id}')">刪除</button>
+      </div>
+    </div>`).join('');
+}
+
+window.deleteShopping = async function(id) {
+  if (!confirm('確定刪除此購物紀錄？')) return;
+  state.shopping = state.shopping.filter(r => r.id !== id);
+  if (firebaseMode && db && !id.startsWith('local_')) {
+    const { doc, deleteDoc, db: _db } = window._fb;
+    await deleteDoc(doc(_db, 'shopping', id));
+  }
+  saveToLocal();
+  renderShopping();
+  loadAvailableIngredients();
+  toast('已刪除');
+};
+
+// ──────────────── MEAL ────────────────
+let selectedEaters   = ['A'];
+let selectedIngredients = {}; // { "shopId_itemName": fraction }
+
+window.toggleEater = function(el) {
+  const p = el.dataset.p;
+  if (el.classList.contains('selected')) {
+    if (selectedEaters.length <= 1) return;
+    el.classList.remove('selected');
+    selectedEaters = selectedEaters.filter(x => x !== p);
+  } else {
+    el.classList.add('selected');
+    selectedEaters.push(p);
+  }
+  calcMealCost();
+};
+
+function loadAvailableIngredients() {
+  const grid = document.getElementById('ing-grid');
+  // Flatten all available (un-depleted) items from shopping
+  const allItems = [];
+  state.shopping.forEach(s => {
+    s.items.forEach(it => {
+      allItems.push({ key: s.id + '_' + it.name, shopId: s.id, name: it.name, price: it.price, date: s.date, category: it.category });
+    });
+  });
+
+  if (!allItems.length) {
+    grid.innerHTML = '<div class="empty" style="padding:16px 0">先到購物頁新增食材</div>';
+    document.getElementById('ing-fraction-panel').style.display = 'none';
+    return;
+  }
+  grid.innerHTML = allItems.map(it => `
+    <div class="ing-chip" id="ing_${it.key}" data-key="${it.key}" data-price="${it.price}" onclick="toggleIngredient(this)">
+      ${it.name}
+      <span class="ing-badge" id="badge_${it.key}">1/1</span>
+    </div>`).join('');
+}
+
+const FRACTIONS = [
+  { label: '全部', val: 1 },
+  { label: '3/4', val: 0.75 },
+  { label: '1/2', val: 0.5 },
+  { label: '1/3', val: 0.333 },
+  { label: '1/4', val: 0.25 },
+];
+
+window.toggleIngredient = function(el) {
+  const key = el.dataset.key;
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    delete selectedIngredients[key];
+    removeFracRow(key);
+  } else {
+    el.classList.add('selected');
+    selectedIngredients[key] = 1;
+    addFracRow(key, el.textContent.replace(/\s+/g,'').replace(/\d+\/\d+/,''));
+  }
+  calcMealCost();
+};
+
+function addFracRow(key, name) {
+  const panel = document.getElementById('ing-fraction-panel');
+  const frac  = document.getElementById('frac-items');
+  panel.style.display = 'block';
+  const div = document.createElement('div');
+  div.id = 'fracrow_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+  div.style.cssText = 'margin-bottom:12px';
+  div.innerHTML = `
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:5px">《${name.trim()}》使用幾成？</div>
+    <div class="fraction-row">
+      ${FRACTIONS.map(f => `<div class="frac-chip ${f.val===1?'selected':''}" data-key="${key}" data-val="${f.val}" onclick="setFrac(this)">${f.label}</div>`).join('')}
+    </div>`;
+  frac.appendChild(div);
+}
+
+function removeFracRow(key) {
+  const id = 'fracrow_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+  document.getElementById(id)?.remove();
+  if (!Object.keys(selectedIngredients).length)
+    document.getElementById('ing-fraction-panel').style.display = 'none';
+}
+
+window.setFrac = function(el) {
+  const key = el.dataset.key;
+  const val = parseFloat(el.dataset.val);
+  selectedIngredients[key] = val;
+
+  const rowId = 'fracrow_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+  document.querySelectorAll(`#${rowId} .frac-chip`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  // Update badge
+  const badge = document.getElementById('badge_' + key);
+  if (badge) badge.textContent = el.textContent;
+
+  calcMealCost();
+};
+
+function calcMealCost() {
+  let total = 0;
+  // Find price for each selected ingredient
+  Object.entries(selectedIngredients).forEach(([key, frac]) => {
+    // key = shopId_itemName
+    const underIdx = key.indexOf('_');
+    const shopId   = key.substring(0, underIdx);
+    const itemName = key.substring(underIdx + 1);
+    const shop = state.shopping.find(s => s.id === shopId);
+    if (!shop) return;
+    const item = shop.items.find(i => i.name === itemName);
+    if (!item) return;
+    total += item.price * frac;
+  });
+  const perPerson = selectedEaters.length > 0 ? total / selectedEaters.length : 0;
+  document.getElementById('meal-cost').textContent = `$${total.toFixed(1)}`;
+  document.getElementById('meal-cost-breakdown').textContent =
+    selectedEaters.length > 1
+    ? `（每人 $${perPerson.toFixed(1)}）`
+    : '';
+  return { total, perPerson };
+}
+
+window.saveMeal = async function() {
+  if (!Object.keys(selectedIngredients).length) { toast('請選擇至少一種食材'); return; }
+  const { total, perPerson } = calcMealCost();
+  const record = {
+    date:     document.getElementById('meal-date').value,
+    mealType: document.getElementById('meal-type').value,
+    eaters:   [...selectedEaters],
+    ingredients: Object.entries(selectedIngredients).map(([key, frac]) => {
+      const underIdx = key.indexOf('_');
+      return { shopId: key.substring(0, underIdx), itemName: key.substring(underIdx+1), fraction: frac };
+    }),
+    cost:     total,
+    perPerson,
+    note:     document.getElementById('meal-note').value,
+    createdAt: Date.now()
+  };
+  let id = 'local_' + Date.now();
+  if (firebaseMode && db) {
+    const { collection, addDoc, db: _db } = window._fb;
+    try { const ref = await addDoc(collection(_db, 'meals'), record); id = ref.id; }
+    catch(e) { toast('Firebase 儲存失敗，存入本機'); }
+  }
+  record.id = id;
+  state.meals.unshift(record);
+  saveToLocal();
+  selectedIngredients = {};
+  document.querySelectorAll('.ing-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('frac-items').innerHTML = '';
+  document.getElementById('ing-fraction-panel').style.display = 'none';
+  document.getElementById('meal-note').value = '';
+  calcMealCost();
+  renderMeals();
+  toast('餐點已儲存 ✓');
+};
+
+function renderMeals() {
+  const el = document.getElementById('meal-list');
+  if (!state.meals.length) {
+    el.innerHTML = '<div class="empty"><div class="icon">🍽️</div>還沒有餐點紀錄</div>'; return;
+  }
+  el.innerHTML = state.meals.map(m => `
+    <div class="list-item">
+      <div>
+        <strong>${m.mealType}</strong>
+        <span class="tag">${m.date}</span>
+        <div class="meta">
+          ${m.eaters.map(p => state.names[p]||p).join('、')} 吃了
+          ${m.ingredients.map(i => i.itemName + (i.fraction<1?` (${fracLabel(i.fraction)})`:'') ).join('、')}
+        </div>
+        ${m.note ? `<div class="meta">${m.note}</div>` : ''}
+      </div>
+      <div style="text-align:right">
+        <div class="amount">$${m.cost.toFixed(1)}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="deleteMeal('${m.id}')">刪除</button>
+      </div>
+    </div>`).join('');
+}
+
+function fracLabel(v) {
+  if (v >= 1)    return '全部';
+  if (v >= 0.74) return '3/4';
+  if (v >= 0.49) return '1/2';
+  if (v >= 0.32) return '1/3';
+  return '1/4';
+}
+
+window.deleteMeal = async function(id) {
+  if (!confirm('確定刪除此餐點紀錄？')) return;
+  state.meals = state.meals.filter(m => m.id !== id);
+  if (firebaseMode && db && !id.startsWith('local_')) {
+    const { doc, deleteDoc, db: _db } = window._fb;
+    await deleteDoc(doc(_db, 'meals', id));
+  }
+  saveToLocal();
+  renderMeals();
+  toast('已刪除');
+};
+
+// ──────────────── REPORT ────────────────
+window.calcReport = function() {
+  const from = document.getElementById('r-from').value;
+  const to   = document.getElementById('r-to').value;
+
+  // Filter by date
+  const shops = state.shopping.filter(s => s.date >= from && s.date <= to);
+  const meals = state.meals.filter(m => m.date >= from && m.date <= to);
+
+  // Who paid how much
+  const paid = { A:0, B:0, C:0 };
+  shops.forEach(s => { paid[s.payer] = (paid[s.payer]||0) + s.total; });
+
+  // Who consumed how much
+  const consumed = { A:0, B:0, C:0 };
+  meals.forEach(m => {
+    const share = m.perPerson || (m.cost / m.eaters.length);
+    m.eaters.forEach(p => { consumed[p] = (consumed[p]||0) + share; });
+  });
+
+  // Update UI – paid
+  const spentEl = document.getElementById('report-spent');
+  spentEl.innerHTML = ['A','B','C'].map((p,i) => `
+    <div class="summary-box ${i===1?'red':i===2?'amber':''}">
+      <div class="sname">${state.names[p]} 付出</div>
+      <div class="sval">$${(paid[p]||0).toFixed(0)}</div>
+    </div>`).join('');
+
+  // Per-person consumed
+  const consEl = document.getElementById('report-consumed');
+  consEl.innerHTML = ['A','B','C'].map(p => `
+    <div class="balance-row">
+      <span>${state.names[p]} 消費</span>
+      <span class="balance-pos">$${(consumed[p]||0).toFixed(1)}</span>
+    </div>`).join('');
+
+  // Balance: net = paid - consumed
+  const net = { A: (paid.A||0)-(consumed.A||0), B: (paid.B||0)-(consumed.B||0), C: (paid.C||0)-(consumed.C||0) };
+  const totalConsumed = consumed.A + consumed.B + consumed.C;
+  const totalPaid     = paid.A + paid.B + paid.C;
+
+  // Simple settle-up algorithm
+  const balEl  = document.getElementById('report-balance');
+  const settle = settleUp(net);
+  if (!settle.length) {
+    balEl.innerHTML = '<div class="empty">大家都平了 🎉</div>';
+  } else {
+    balEl.innerHTML = settle.map(t => `
+      <div class="balance-row">
+        <span>${state.names[t.from]} 應付 ${state.names[t.to]}</span>
+        <span class="balance-neg">$${t.amount.toFixed(1)}</span>
+      </div>`).join('');
+  }
+
+  // Top ingredients
+  const ingCount = {};
+  meals.forEach(m => m.ingredients.forEach(i => {
+    ingCount[i.itemName] = (ingCount[i.itemName]||0) + 1;
+  }));
+  const topEl = document.getElementById('report-top');
+  const sorted = Object.entries(ingCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if (!sorted.length) { topEl.innerHTML = '<div class="empty">暫無資料</div>'; return; }
+  topEl.innerHTML = sorted.map(([name, cnt], i) => `
+    <div class="balance-row">
+      <span>${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${name}</span>
+      <span class="balance-pos">使用 ${cnt} 次</span>
+    </div>`).join('');
+};
+
+function settleUp(net) {
+  const people = Object.entries(net).map(([p, v]) => ({ p, v }));
+  const creditors = people.filter(x => x.v > 0.01).sort((a,b) => b.v - a.v);
+  const debtors   = people.filter(x => x.v < -0.01).sort((a,b) => a.v - b.v);
+  const txns = [];
+  let ci = 0, di = 0;
+  while (ci < creditors.length && di < debtors.length) {
+    const c = creditors[ci];
+    const d = debtors[di];
+    const amount = Math.min(c.v, -d.v);
+    if (amount > 0.01) txns.push({ from: d.p, to: c.p, amount });
+    c.v -= amount; d.v += amount;
+    if (c.v < 0.01) ci++;
+    if (d.v > -0.01) di++;
+  }
+  return txns;
+}
+
+// ──────────────── NAV ────────────────
+window.showPage = function(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'meal') loadAvailableIngredients();
+};
+
+// ──────────────── FIREBASE MODAL ────────────────
+window.saveFirebaseConfig = function() {
+  const cfg = {
+    apiKey:            document.getElementById('fb-apiKey').value.trim(),
+    authDomain:        document.getElementById('fb-authDomain').value.trim(),
+    projectId:         document.getElementById('fb-projectId').value.trim(),
+    appId:             document.getElementById('fb-appId').value.trim(),
+    storageBucket:     document.getElementById('fb-authDomain').value.replace('firebaseapp.com','appspot.com'),
+    messagingSenderId: '',
+  };
+  if (!cfg.apiKey || !cfg.projectId) { toast('請填寫 API Key 和 Project ID'); return; }
+  localStorage.setItem('fbConfig', JSON.stringify(cfg));
+  document.getElementById('config-modal').classList.add('hidden');
+  initFirebase(cfg);
+};
+
+window.useLocalMode = function() {
+  document.getElementById('config-modal').classList.add('hidden');
+  setSyncStatus(false);
+  toast('使用本機模式');
+};
+
+window.clearLocal = function() {
+  if (!confirm('清除所有本機快取？')) return;
+  localStorage.removeItem('houseData');
+  state.shopping = [];
+  state.meals = [];
+  renderShopping();
+  renderMeals();
+  loadAvailableIngredients();
+  toast('本機資料已清除');
+};
+
+// ──────────────── TOAST ────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+window.toast = toast;
+</script>
+</body>
+</html>
